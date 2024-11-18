@@ -1,0 +1,70 @@
+import Foundation
+
+struct Mood {
+    var date: Date
+    var mood: String
+    var activity: String
+    var people: String
+}
+
+import UIKit
+
+class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+    
+    // Outlets for UI elements
+    @IBOutlet weak var moodSegmentedControl: UISegmentedControl!
+    @IBOutlet weak var activityTextField: UITextField!
+    @IBOutlet weak var peopleTextField: UITextField!
+    @IBOutlet weak var tableView: UITableView!
+    
+    // Array to store mood entries
+    var moodEntries: [Mood] = []
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        tableView.delegate = self
+        tableView.dataSource = self
+    }
+    
+    @IBAction func logMoodButtonTapped(_ sender: UIButton) {
+        // Get selected mood
+        let selectedMood = moodSegmentedControl.titleForSegment(at: moodSegmentedControl.selectedSegmentIndex) ?? "Unknown"
+        
+        // Get activity and people input
+        let activity = activityTextField.text ?? ""
+        let people = peopleTextField.text ?? ""
+        
+        // Create a new Mood entry
+        let newMood = Mood(date: Date(), mood: selectedMood, activity: activity, people: people)
+        
+        // Add it to the array and reload the table view
+        moodEntries.append(newMood)
+        tableView.reloadData()
+        
+        // Clear text fields after logging
+        activityTextField.text = ""
+        peopleTextField.text = ""
+    }
+    
+    // UITableView DataSource Methods
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return moodEntries.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "MoodCell", for: indexPath)
+        
+        let moodEntry = moodEntries[indexPath.row]
+        cell.textLabel?.text = "\(moodEntry.mood) - \(moodEntry.activity) with \(moodEntry.people)"
+        
+        // Format date for display
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .short
+        dateFormatter.timeStyle = .short
+        
+        cell.detailTextLabel?.text = dateFormatter.string(from: moodEntry.date)
+        
+        return cell
+    }
+}
+
